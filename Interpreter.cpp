@@ -44,12 +44,13 @@ std::vector<std::string> split(const std::string& str) {
     return tokens;
 }
 
-int execute_program(Program& program) {
+int execute_program(std::vector<std::string> args, Enviroment enviroment) {
     pid_t pid = fork();
     int code = -1;
     if (pid == -1) {
         std::cerr << "Cann't create a new process. \"fork\" failed." << std::endl;
     } else if (pid == 0) {
+        Program program(args[0], args, enviroment.get_variables());
         if (execve(program.get_name(), program.get_args(), program.get_envs()) < 0) {
          std::cerr << "Executing of program was failed" << std::endl;
          exit(EXIT_FAILURE);   
@@ -83,7 +84,10 @@ void loop (char** env) {
     }
     while(std::getline(std::cin, line)) {
         std::vector<std::string> args = split(line);
-        const std::string command = args[0];
+        if (args.size() == 0) {
+            continue;
+        }
+        const std::string command(args[0]);
         if (command == "exit") {
             return;
         } else if (command == "help") {
@@ -113,8 +117,8 @@ void loop (char** env) {
                 std::cerr << "Program must have a path." << std::endl;
                 continue;
             }
-            Program program(args[1], args, env_vars.get_variables());
-            int code = execute_program(program);
+            args.erase(args.begin());
+            int code = execute_program(args, env_vars);
             if (code >= 0) {
                 std::cerr << "Return code of program is " << code << std::endl;
             } else {
@@ -126,8 +130,9 @@ void loop (char** env) {
     }
 }
 
-int main(int argc, char* argv[], char** env) {
+int main(int argc, char** argv, char** env) {
     print_info();
+    (void) argv;
     loop(env);
     return 0;
 }

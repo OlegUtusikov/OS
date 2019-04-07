@@ -14,11 +14,11 @@ Program::Program(const std::string& name,
                 const std::unordered_map<std::string, std::string> &envs){
     this->name = new char[name.size()];
     strcpy(this->name, name.c_str());
-    this->args = new char*[args.size()];
-    this->args[args.size() - 1] = nullptr;
-    for(size_t i = 0; i < args.size() - 1; i++) {
-        this->args[i] = new char[args[1 + i].size()];
-        strcpy(this->args[i], args[1 + i].c_str());
+    this->args = new char*[args.size() + 1];
+    this->args[args.size()] = nullptr;
+    for(size_t i = 0; i < args.size(); i++) {
+        this->args[i] = new char[args[i].size()];
+        strcpy(this->args[i], args[i].c_str());
     }
     this->envs = new char*[envs.size() + 1];
     this->envs[envs.size()] = nullptr;
